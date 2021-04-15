@@ -1,28 +1,88 @@
-print('Password manager')
-
 # tazko hacknutelne (bezpecne)
 # lahko kopirovali hesla
 # generovat hesla <--
-# vstup dlzka hesla
-# a-zA-Z0-9
 
 import secrets
 import string
+import json
 
-def generate_password(length, lowercase, uppercase, digit, punctuation):
-    # function should generate password with length. 
-    # lowercase, uppercase, digit, punctuation are bools, to indicate
-    # what characters should be used in generations, for example
-    # generate_password(4, False, True, True, False) moze napriklad vygenerovat 
-    # heslo AH7R, alebo 8845, ale nie hj4U, lebo su tam aj male prismena, 
-    # doprogramujte tuto funkciu... (3body)
-    password = ''
+PASSWORD = [
+]
 
-    for i in range(pwd_length):
-        password += secrets.choice(string.ascii_letters + string.digits)
+with open('data.txt', 'r') as infile:
+    PASSWORD = json.load(infile)
 
-pwd_length = int(input('Zadaj dĺžku hesla: '))
+def generate_password(length, **kwargs):
+    """Vygeneruje nové bezpečné heslo dĺžky ``length``, nastavenia sú
 
-password = generate_password(pwd_length)
+    ``lowercase`` heslo obsahuje malé písmená
+    ``uppercase`` heslo obsahuje veľké písmená
+    ``digit``
+    ``punctuation``
 
-print(password)
+    Example:
+    """
+    unknown = ''
+    for (k, v) in kwargs.items():
+        if k == 'lowercase':
+            if v:
+                unknown += string.ascii_lowercase
+        elif k == 'uppercase':
+            if v:
+                unknown += string.ascii_uppercase
+        elif k == 'digit':
+            if v:
+                unknown += string.digits
+        elif k == 'punctuation':
+            if v:
+                unknown += string.punctuation
+        else:
+            raise KeyError(k + ' is not valid parameter.')
+
+    password = ''    
+    for i in range(length):
+        password += secrets.choice(unknown)
+
+    return password
+
+
+def add():
+    web = input('Zadaj web adresu ')
+    username = input('Zadaj užívateľské meno ')
+    password = input('Zadaj heslo (ak prázdne vygeneruje sa nové) ')
+
+    if password == '':
+        password = generate_password(16, lowercase=True, uppercase=True, digit=True)
+
+    PASSWORD.append({
+        'web': web,
+        'username': username,
+        'password': password
+    })
+
+def print_menu():
+    print('ADD - Zadávanie nového vstupu')
+    print('DEL - Mazanie položky')
+    print('VIEW - Zobrazenie položky')
+    print('EXIT - Ukončenie programu')
+
+print('Best password managed')
+
+while True:
+    print_menu()
+    cmd = input('Zadaj príkaz ')
+    if cmd == 'ADD':
+        add()
+    elif cmd == 'DEL':
+        pass
+    elif cmd == 'VIEW':
+        pass
+    elif cmd == 'EXIT':
+        break
+    else:
+        print('Nesprávny príkaz.')
+
+with open('data.txt', 'w') as outfile:
+    json.dump(PASSWORD, outfile)
+
+print(PASSWORD)
