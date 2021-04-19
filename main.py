@@ -5,12 +5,20 @@
 import secrets
 import string
 import json
+from os import path
+
+DATA_FILENAME = 'data.txt'
 
 PASSWORD = [
 ]
 
-with open('data.txt', 'r') as infile:
-    PASSWORD = json.load(infile)
+
+if path.exists(DATA_FILENAME):
+    try:
+        with open(DATA_FILENAME, 'r') as infile:
+            PASSWORD = json.load(infile)
+    except:
+        PASSWORD = []
 
 def generate_password(length, **kwargs):
     """Vygeneruje nové bezpečné heslo dĺžky ``length``, nastavenia sú
